@@ -1,0 +1,106 @@
+buildscript {
+    ext {
+        kotlin_version = "1.3.61"
+        camerax_version = "1.0.0-alpha05"
+        coil_version = "0.8.0"
+        ui_version = "4.0.0"
+
+        android_tools_version = "3.3.2"
+    }
+
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$android_tools_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'kotlin-multiplatform' version '1.3.61'
+}
+
+group 'tz.co.asoft'
+version '3.0.0'
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    google()
+    jcenter()
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-js-wrappers' }
+    maven { url 'https://dl.bintray.com/kotlinx/kotlinx' }
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+    maven { url "https://jitpack.io" }
+    mavenCentral()
+}
+kotlin {
+    android() {
+        compilations.all {
+            tasks[compileKotlinTaskName].kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
+
+    js() {
+        compilations.all {
+            tasks[compileKotlinTaskName].kotlinOptions {
+                kotlinOptions.metaInfo = true
+                kotlinOptions.sourceMap = true
+                kotlinOptions.moduleKind = 'commonjs'
+                kotlinOptions.main = "call"
+            }
+        }
+    }
+
+    android {
+        publishLibraryVariants("release")
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin('stdlib-common')
+                implementation "com.github.andylamax.asoft-ui:asoft-ui-metadata:$ui_version"
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation kotlin("stdlib-jdk8")
+                implementation "com.github.andylamax.asoft-ui:asoft-ui-android:$ui_version"
+                api "androidx.camera:camera-core:${camerax_version}"
+                api "androidx.camera:camera-camera2:${camerax_version}"
+                api("io.coil-kt:coil:$coil_version") {
+                    exclude group: 'androidx.appcompat'
+                }
+            }
+        }
+    }
+}
